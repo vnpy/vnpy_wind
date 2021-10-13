@@ -1,14 +1,12 @@
 from datetime import timedelta, datetime
 from typing import List, Optional
 from pytz import timezone
+from math import isnan
 
-from pandas import DataFrame
 from WindPy import w
 
-from vnpy.trader.setting import SETTINGS
 from vnpy.trader.constant import Exchange, Interval
-from vnpy.trader.object import BarData, TickData, HistoryRequest
-from vnpy.trader.utility import extract_vt_symbol
+from vnpy.trader.object import BarData, HistoryRequest
 from vnpy.trader.datafeed import BaseDatafeed
 
 
@@ -91,6 +89,11 @@ class WindDatafeed(BaseDatafeed):
         for tp in df.itertuples():
             dt = tp.Index.to_pydatetime()
 
+            if isnan(tp.position):
+                open_interest = 0
+            else:
+                open_interest = tp.position
+
             bar = BarData(
                 symbol=req.symbol,
                 exchange=req.exchange,
@@ -102,7 +105,7 @@ class WindDatafeed(BaseDatafeed):
                 close_price=tp.close,
                 volume=tp.volume,
                 turnover=tp.amount,
-                open_interest=tp.position,
+                open_interest=open_interest,
                 gateway_name="WIND"
             )
             bars.append(bar)
@@ -140,6 +143,11 @@ class WindDatafeed(BaseDatafeed):
         for tp in df.itertuples():
             dt = datetime.combine(tp.Index, datetime.min.time())
 
+            if isnan(tp.OI):
+                open_interest = 0
+            else:
+                open_interest = tp.OI
+
             bar = BarData(
                 symbol=req.symbol,
                 exchange=req.exchange,
@@ -151,75 +159,9 @@ class WindDatafeed(BaseDatafeed):
                 close_price=tp.CLOSE,
                 volume=tp.VOLUME,
                 turnover=tp.AMT,
-                open_interest=tp.OI,
+                open_interest=open_interest,
                 gateway_name="WIND"
             )
             bars.append(bar)
 
         return bars
-
-    def query_tick_history(self, req: HistoryRequest) -> Optional[List[TickData]]:
-        """查询Tick数据"""
-        if not w.isconnected():
-            self.init()
-
-        wind_exchange = EXCHANGE_MAP[req.exchange]
-        wind_symbol = f"{req.symbol}.{wind_exchange}"
-
-        fields = [
-            "open",
-            "high",
-            "low",
-            "last",
-            "volume",
-            "turnover",
-            "oi",
-            "bid1",
-            "bid2",
-            "bid3",
-            "bid4",
-            "bid5",
-            "ask1",
-            "ask2",
-            "ask3",
-            "ask4",
-            "ask5",
-        ]
-
-        df: DataFrame = w.wst(
-            codes=wind_symbol,
-            fields=fields,
-            beginTime=req.start,
-            endTime=req.end,
-            options="",
-            usedf=True
-        )
-
-        ticks: List[TickData] = []
-        for tp in df.itertuples():
-            tick = TickData(
-                symbol=req.symbol,
-                exchange=req.exchange,
-                datetime=tp.Index,
-                open_price=tp.open,
-                high_price=tp.high,
-                low_price=tp.low,
-                last_price=tp.last,
-                volume=tp.volume,
-                turnover=tp.turnover,
-                open_interest=tp.oi,
-                bid_price_1=tp.bid1,
-                bid_price_2=tp.bid2,
-                bid_price_3=tp.bid3,
-                bid_price_4=tp.bid4,
-                bid_price_5=tp.bid5,
-                ask_price_1=tp.ask1,
-                ask_price_2=tp.ask2,
-                ask_price_3=tp.ask3,
-                ask_price_4=tp.ask4,
-                ask_price_5=tp.ask5,
-                gateway_name="WIND"
-            )
-            ticks.append(tick)
-
-        return ticks
