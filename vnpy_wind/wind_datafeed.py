@@ -1,5 +1,4 @@
-from dataclasses import field
-from datetime import timedelta
+from datetime import timedelta, datetime
 from typing import List, Optional
 from pytz import timezone
 
@@ -53,6 +52,13 @@ class WindDatafeed(BaseDatafeed):
         if not w.isconnected():
             self.init()
 
+        if req.interval == Interval.DAILY:
+            return self.query_daily_bar_history(req)
+        else:
+            return self.query_intraday_bar_history(req)
+
+    def query_intraday_bar_history(self, req: HistoryRequest) -> Optional[List[BarData]]:
+        """查询日内K线数据"""
         wind_exchange = EXCHANGE_MAP[req.exchange]
         wind_symbol = f"{req.symbol}.{wind_exchange}"
 
@@ -62,45 +68,90 @@ class WindDatafeed(BaseDatafeed):
             "low",
             "close",
             "volume",
-            "turnover",
+            "amt",
             "oi"
         ]
 
-        if req.interval == Interval.DAILY:
-            error, df = w.wsi(
-                codes=wind_symbol,
-                fields=fields,
-                beginTime=req.start,
-                endTime=req.end,
-                options="",
-                usedf=True
-            )
-        else:
-            error, df = w.wsi(
-                codes=wind_symbol,
-                fields=fields,
-                beginTime=req.start,
-                endTime=req.end,
-                options="",
-                usedf=True
-            )
-        
+        wind_interval = INTERVAL_MAP[req.interval]
+        options = f"BarSize={wind_interval}"
+
+        error, df = w.wsi(
+            codes=wind_symbol,
+            fields=fields,
+            beginTime=req.start,
+            endTime=req.end,
+            options=options,
+            usedf=True
+        )
+
         if error:
             return []
 
         bars: List[BarData] = []
         for tp in df.itertuples():
+            dt = tp.Index.to_pydatetime()
+
             bar = BarData(
                 symbol=req.symbol,
                 exchange=req.exchange,
-                datetime=tp.Index,
+                interval=req.interval,
+                datetime=CHINA_TZ.localize(dt),
                 open_price=tp.open,
                 high_price=tp.high,
                 low_price=tp.low,
                 close_price=tp.close,
                 volume=tp.volume,
-                turnover=tp.turnover,
-                open_interest=tp.oi,
+                turnover=tp.amount,
+                open_interest=tp.position,
+                gateway_name="WIND"
+            )
+            bars.append(bar)
+
+        return bars
+
+    def query_daily_bar_history(self, req: HistoryRequest) -> Optional[List[BarData]]:
+        """查询日K线数据"""
+        wind_exchange = EXCHANGE_MAP[req.exchange]
+        wind_symbol = f"{req.symbol}.{wind_exchange}"
+
+        fields = [
+            "open",
+            "high",
+            "low",
+            "close",
+            "volume",
+            "amt",
+            "oi"
+        ]
+
+        error, df = w.wsd(
+            codes=wind_symbol,
+            fields=fields,
+            beginTime=req.start,
+            endTime=req.end,
+            options="",
+            usedf=True
+        )
+
+        if error:
+            return []
+
+        bars: List[BarData] = []
+        for tp in df.itertuples():
+            dt = datetime.combine(tp.Index, datetime.min.time())
+
+            bar = BarData(
+                symbol=req.symbol,
+                exchange=req.exchange,
+                interval=req.interval,
+                datetime=CHINA_TZ.localize(dt),
+                open_price=tp.OPEN,
+                high_price=tp.HIGH,
+                low_price=tp.LOW,
+                close_price=tp.CLOSE,
+                volume=tp.VOLUME,
+                turnover=tp.AMT,
+                open_interest=tp.OI,
                 gateway_name="WIND"
             )
             bars.append(bar)
