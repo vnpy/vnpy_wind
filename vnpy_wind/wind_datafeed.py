@@ -40,9 +40,10 @@ class WindDatafeed(BaseDatafeed):
         if w.isconnected():
             return True
 
-        data = w.start()
+        data: w.WindData = w.start()
         if data.ErrorCode:
             return False
+
         return True
 
     def query_bar_history(self, req: HistoryRequest) -> Optional[List[BarData]]:
@@ -57,10 +58,11 @@ class WindDatafeed(BaseDatafeed):
 
     def query_intraday_bar_history(self, req: HistoryRequest) -> Optional[List[BarData]]:
         """查询日内K线数据"""
-        wind_exchange = EXCHANGE_MAP[req.exchange]
-        wind_symbol = f"{req.symbol}.{wind_exchange}"
+        # 参数转换
+        wind_exchange: str = EXCHANGE_MAP[req.exchange]
+        wind_symbol: str = f"{req.symbol}.{wind_exchange}"
 
-        fields = [
+        fields: List[str] = [
             "open",
             "high",
             "low",
@@ -70,9 +72,10 @@ class WindDatafeed(BaseDatafeed):
             "oi"
         ]
 
-        wind_interval = INTERVAL_MAP[req.interval]
-        options = f"BarSize={wind_interval}"
+        wind_interval: str = INTERVAL_MAP[req.interval]
+        options: str = f"BarSize={wind_interval}"
 
+        # 发起查询
         error, df = w.wsi(
             codes=wind_symbol,
             fields=fields,
@@ -82,19 +85,22 @@ class WindDatafeed(BaseDatafeed):
             usedf=True
         )
 
+        # 检查错误
         if error:
             return []
 
+        # 解析数据
         bars: List[BarData] = []
         for tp in df.itertuples():
-            dt = tp.Index.to_pydatetime()
+            dt: datetime = tp.Index.to_pydatetime()
 
+            # 检查是否有持仓量字段
             if isnan(tp.position):
-                open_interest = 0
+                open_interest: int = 0
             else:
-                open_interest = tp.position
+                open_interest: int = tp.position
 
-            bar = BarData(
+            bar: BarData = BarData(
                 symbol=req.symbol,
                 exchange=req.exchange,
                 interval=req.interval,
@@ -114,10 +120,11 @@ class WindDatafeed(BaseDatafeed):
 
     def query_daily_bar_history(self, req: HistoryRequest) -> Optional[List[BarData]]:
         """查询日K线数据"""
-        wind_exchange = EXCHANGE_MAP[req.exchange]
-        wind_symbol = f"{req.symbol}.{wind_exchange}"
+        # 参数转换
+        wind_exchange: str = EXCHANGE_MAP[req.exchange]
+        wind_symbol: str = f"{req.symbol}.{wind_exchange}"
 
-        fields = [
+        fields: List[str] = [
             "open",
             "high",
             "low",
@@ -127,6 +134,7 @@ class WindDatafeed(BaseDatafeed):
             "oi"
         ]
 
+        # 发起查询
         error, df = w.wsd(
             codes=wind_symbol,
             fields=fields,
@@ -136,19 +144,22 @@ class WindDatafeed(BaseDatafeed):
             usedf=True
         )
 
+        # 检查错误
         if error:
             return []
 
+        # 解析数据
         bars: List[BarData] = []
         for tp in df.itertuples():
-            dt = datetime.combine(tp.Index, datetime.min.time())
+            dt: datetime = datetime.combine(tp.Index, datetime.min.time())
 
+            # 检查是否有持仓量字段
             if isnan(tp.OI):
-                open_interest = 0
+                open_interest: int = 0
             else:
-                open_interest = tp.OI
+                open_interest: int = tp.OI
 
-            bar = BarData(
+            bar: BarData = BarData(
                 symbol=req.symbol,
                 exchange=req.exchange,
                 interval=req.interval,
