@@ -26,11 +26,6 @@ INTERVAL_MAP = {
     Interval.HOUR: "60"
 }
 
-SHIFT_MAP = {
-    Interval.MINUTE: timedelta(minutes=1),
-    Interval.HOUR: timedelta(hours=1),
-}
-
 
 class WindDatafeed(BaseDatafeed):
     """万得数据服务接口"""
