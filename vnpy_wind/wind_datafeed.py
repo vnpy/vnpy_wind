@@ -84,6 +84,9 @@ class WindDatafeed(BaseDatafeed):
         if error:
             return []
 
+        # 补全缺失数值
+        df.fillna(value=0, inplace=True)
+
         # 解析数据
         bars: List[BarData] = []
         for tp in df.itertuples():
