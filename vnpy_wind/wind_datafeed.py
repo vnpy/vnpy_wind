@@ -1,5 +1,5 @@
-from datetime import timedelta, datetime
-from typing import List, Optional
+from datetime import datetime
+from typing import Dict, List, Optional
 from pytz import timezone
 from math import isnan
 
@@ -12,7 +12,7 @@ from vnpy.trader.datafeed import BaseDatafeed
 
 CHINA_TZ = timezone("Asia/Shanghai")
 
-EXCHANGE_MAP = {
+EXCHANGE_MAP: Dict[Exchange, str] = {
     Exchange.SSE: "SH",
     Exchange.SZSE: "SZ",
     Exchange.CFFEX: "CFE",
@@ -21,7 +21,7 @@ EXCHANGE_MAP = {
     Exchange.DCE: "DCE",
 }
 
-INTERVAL_MAP = {
+INTERVAL_MAP: Dict[Interval, str] = {
     Interval.MINUTE: "1",
     Interval.HOUR: "60"
 }
