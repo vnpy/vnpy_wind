@@ -24,6 +24,7 @@
 import importlib_metadata
 
 from .wind_datafeed import WindDatafeed as Datafeed
+from .wind_md import WindMdApi
 
 
 try:
