@@ -1,6 +1,5 @@
-from datetime import datetime
-from typing import Dict, List, Optional
-from pytz import timezone
+from datetime import timedelta, datetime
+from typing import List, Optional
 from math import isnan
 
 from WindPy import w
@@ -8,9 +7,10 @@ from WindPy import w
 from vnpy.trader.constant import Exchange, Interval
 from vnpy.trader.object import BarData, HistoryRequest
 from vnpy.trader.datafeed import BaseDatafeed
+from vnpy.trader.utility import ZoneInfo
 
 
-CHINA_TZ = timezone("Asia/Shanghai")
+CHINA_TZ = ZoneInfo("Asia/Shanghai")
 
 EXCHANGE_MAP: Dict[Exchange, str] = {
     Exchange.SSE: "SH",
@@ -102,7 +102,7 @@ class WindDatafeed(BaseDatafeed):
                 symbol=req.symbol,
                 exchange=req.exchange,
                 interval=req.interval,
-                datetime=CHINA_TZ.localize(dt),
+                datetime=dt.replace(tzinfo=CHINA_TZ),
                 open_price=tp.open,
                 high_price=tp.high,
                 low_price=tp.low,
@@ -161,7 +161,7 @@ class WindDatafeed(BaseDatafeed):
                 symbol=req.symbol,
                 exchange=req.exchange,
                 interval=req.interval,
-                datetime=CHINA_TZ.localize(dt),
+                datetime=dt.replace(tzinfo=CHINA_TZ),
                 open_price=tp.OPEN,
                 high_price=tp.HIGH,
                 low_price=tp.LOW,
