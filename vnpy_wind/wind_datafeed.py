@@ -1,5 +1,5 @@
-from datetime import timedelta, datetime
-from typing import List, Optional
+from datetime import datetime
+from typing import List, Dict, Optional
 from math import isnan
 
 from WindPy import w
@@ -12,6 +12,7 @@ from vnpy.trader.utility import ZoneInfo
 
 CHINA_TZ = ZoneInfo("Asia/Shanghai")
 
+
 EXCHANGE_MAP: Dict[Exchange, str] = {
     Exchange.SSE: "SH",
     Exchange.SZSE: "SZ",
@@ -20,6 +21,7 @@ EXCHANGE_MAP: Dict[Exchange, str] = {
     Exchange.CZCE: "CZC",
     Exchange.DCE: "DCE",
 }
+
 
 INTERVAL_MAP: Dict[Interval, str] = {
     Interval.MINUTE: "1",
