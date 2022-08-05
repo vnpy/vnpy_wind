@@ -12,7 +12,7 @@ from vnpy.trader.utility import ZoneInfo
 
 CHINA_TZ = ZoneInfo("Asia/Shanghai")
 
-EXCHANGE_MAP = {
+EXCHANGE_MAP: Dict[Exchange, str] = {
     Exchange.SSE: "SH",
     Exchange.SZSE: "SZ",
     Exchange.CFFEX: "CFE",
@@ -21,7 +21,7 @@ EXCHANGE_MAP = {
     Exchange.DCE: "DCE",
 }
 
-INTERVAL_MAP = {
+INTERVAL_MAP: Dict[Interval, str] = {
     Interval.MINUTE: "1",
     Interval.HOUR: "60"
 }
