@@ -32,11 +32,8 @@ INTERVAL_MAP: Dict[Interval, str] = {
 class WindDatafeed(BaseDatafeed):
     """万得数据服务接口"""
 
-    def init(self, output: Callable = None) -> bool:
+    def init(self, output: Callable = print) -> bool:
         """初始化"""
-        if not output:
-            output = print
-
         if w.isconnected():
             return True
 
@@ -47,7 +44,7 @@ class WindDatafeed(BaseDatafeed):
 
         return True
 
-    def query_bar_history(self, req: HistoryRequest, output: Callable = None) -> Optional[List[BarData]]:
+    def query_bar_history(self, req: HistoryRequest, output: Callable = print) -> Optional[List[BarData]]:
         """查询K线数据"""
         if not w.isconnected():
             self.init(output)
@@ -57,7 +54,7 @@ class WindDatafeed(BaseDatafeed):
         else:
             return self.query_intraday_bar_history(req, output)
 
-    def query_intraday_bar_history(self, req: HistoryRequest, output: Callable = None) -> Optional[List[BarData]]:
+    def query_intraday_bar_history(self, req: HistoryRequest, output: Callable = print) -> Optional[List[BarData]]:
         """查询日内K线数据"""
         # 参数转换
         wind_exchange: str = EXCHANGE_MAP[req.exchange]
