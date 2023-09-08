@@ -151,6 +151,9 @@ class WindDatafeed(BaseDatafeed):
             output(f"历史数据查询失败，错误码：{error}")
             return []
 
+        # 补全缺失数值
+        df.fillna(value=0, inplace=True)
+
         # 解析数据
         bars: List[BarData] = []
         for tp in df.itertuples():
