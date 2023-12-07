@@ -19,7 +19,9 @@ EXCHANGE_WIND_VT: Dict[str, Exchange] = {
     "CFE": Exchange.CFFEX,
     "SHF": Exchange.SHFE,
     "CZC": Exchange.CZCE,
-    "DCE": Exchange.DCE
+    "DCE": Exchange.DCE,
+    "INE": Exchange.INE,
+    "GFE": Exchange.GFEX
 }
 EXCHANGE_VT_WIND = {v: k for k, v in EXCHANGE_WIND_VT.items()}
 
