@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List, Dict, Optional, Callable
+from collections.abc import Callable
 from math import isnan
 
 from WindPy import w
@@ -13,7 +13,7 @@ from vnpy.trader.utility import ZoneInfo
 CHINA_TZ = ZoneInfo("Asia/Shanghai")
 
 
-EXCHANGE_MAP: Dict[Exchange, str] = {
+EXCHANGE_MAP: dict[Exchange, str] = {
     Exchange.SSE: "SH",
     Exchange.SZSE: "SZ",
     Exchange.CFFEX: "CFE",
@@ -23,7 +23,7 @@ EXCHANGE_MAP: Dict[Exchange, str] = {
 }
 
 
-INTERVAL_MAP: Dict[Interval, str] = {
+INTERVAL_MAP: dict[Interval, str] = {
     Interval.MINUTE: "1",
     Interval.HOUR: "60"
 }
@@ -44,7 +44,7 @@ class WindDatafeed(BaseDatafeed):
 
         return True
 
-    def query_bar_history(self, req: HistoryRequest, output: Callable = print) -> Optional[List[BarData]]:
+    def query_bar_history(self, req: HistoryRequest, output: Callable = print) -> list[BarData] | None:
         """查询K线数据"""
         if not w.isconnected():
             self.init(output)
@@ -54,13 +54,13 @@ class WindDatafeed(BaseDatafeed):
         else:
             return self.query_intraday_bar_history(req, output)
 
-    def query_intraday_bar_history(self, req: HistoryRequest, output: Callable = print) -> Optional[List[BarData]]:
+    def query_intraday_bar_history(self, req: HistoryRequest, output: Callable = print) -> list[BarData] | None:
         """查询日内K线数据"""
         # 参数转换
         wind_exchange: str = EXCHANGE_MAP[req.exchange]
         wind_symbol: str = f"{req.symbol}.{wind_exchange}"
 
-        fields: List[str] = [
+        fields: list[str] = [
             "open",
             "high",
             "low",
@@ -92,7 +92,7 @@ class WindDatafeed(BaseDatafeed):
         df.fillna(value=0, inplace=True)
 
         # 解析数据
-        bars: List[BarData] = []
+        bars: list[BarData] = []
         for tp in df.itertuples():
             dt: datetime = tp.Index.to_pydatetime()
 
@@ -120,13 +120,13 @@ class WindDatafeed(BaseDatafeed):
 
         return bars
 
-    def query_daily_bar_history(self, req: HistoryRequest, output: Callable = None) -> Optional[List[BarData]]:
+    def query_daily_bar_history(self, req: HistoryRequest, output: Callable = None) -> list[BarData] | None:
         """查询日K线数据"""
         # 参数转换
         wind_exchange: str = EXCHANGE_MAP[req.exchange]
         wind_symbol: str = f"{req.symbol}.{wind_exchange}"
 
-        fields: List[str] = [
+        fields: list[str] = [
             "open",
             "high",
             "low",
@@ -155,7 +155,7 @@ class WindDatafeed(BaseDatafeed):
         df.fillna(value=0, inplace=True)
 
         # 解析数据
-        bars: List[BarData] = []
+        bars: list[BarData] = []
         for tp in df.itertuples():
             dt: datetime = datetime.combine(tp.Index, datetime.min.time())
 
