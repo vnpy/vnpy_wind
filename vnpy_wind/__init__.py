@@ -21,13 +21,12 @@
 # SOFTWARE.
 
 
-import importlib_metadata
-
 from .wind_datafeed import WindDatafeed as Datafeed
 from .wind_md import WindMdApi
 
 
-try:
-    __version__ = importlib_metadata.version("vnpy_wind")
-except importlib_metadata.PackageNotFoundError:
-    __version__ = "dev"
+__all__ = ["Datafeed", "WindMdApi"]
+
+
+__version__ = "1.1.0"
+
