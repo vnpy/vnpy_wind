@@ -21,9 +21,6 @@ classifiers = [
     "Typing :: Typed",
 ]
 requires-python = ">=3.10"
-dependencies = [
-    "importlib_metadata>=8.6.1",
-]
 keywords = ["quant", "quantitative", "investment", "trading", "algotrading"]
 
 [project.urls]
