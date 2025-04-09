@@ -100,7 +100,7 @@ class WindDatafeed(BaseDatafeed):
             if isnan(tp.position):
                 open_interest: int = 0
             else:
-                open_interest: int = tp.position
+                open_interest = tp.position
 
             bar: BarData = BarData(
                 symbol=req.symbol,
@@ -120,7 +120,7 @@ class WindDatafeed(BaseDatafeed):
 
         return bars
 
-    def query_daily_bar_history(self, req: HistoryRequest, output: Callable = None) -> list[BarData] | None:
+    def query_daily_bar_history(self, req: HistoryRequest, output: Callable = print) -> list[BarData] | None:
         """查询日K线数据"""
         # 参数转换
         wind_exchange: str = EXCHANGE_MAP[req.exchange]
@@ -163,7 +163,7 @@ class WindDatafeed(BaseDatafeed):
             if isnan(tp.OI):
                 open_interest: int = 0
             else:
-                open_interest: int = tp.OI
+                open_interest = tp.OI
 
             bar: BarData = BarData(
                 symbol=req.symbol,

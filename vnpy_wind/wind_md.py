@@ -1,5 +1,6 @@
 from copy import copy
 from datetime import datetime
+from typing import Any
 
 from WindPy import w
 
@@ -68,7 +69,7 @@ class WindMdApi:
         self.ticks: dict[str, TickData] = {}
         self.subscribed: dict[str, SubscribeRequest] = {}
 
-    def connect(self):
+    def connect(self) -> None:
         """"""
         data = w.start()
         if not data.ErrorCode:
@@ -80,7 +81,7 @@ class WindMdApi:
         for req in self.subscribed.values():
             self.subscribe(req)
 
-    def subscribe(self, req: SubscribeRequest):
+    def subscribe(self, req: SubscribeRequest) -> None:
         """"""
         self.subscribed[req.vt_symbol] = req
 
@@ -102,7 +103,7 @@ class WindMdApi:
             gateway_name=self.gateway_name
         )
 
-    def wsq_callback(self, data):
+    def wsq_callback(self, data: Any) -> None:
         """"""
         wind_symbol = data.Codes[0]
         tick = self.ticks[wind_symbol]
