@@ -1,6 +1,6 @@
-from typing import Dict
 from copy import copy
 from datetime import datetime
+from typing import Any
 
 from WindPy import w
 
@@ -13,7 +13,7 @@ from vnpy.trader.constant import Exchange
 CHINA_TZ = ZoneInfo("Asia/Shanghai")
 
 
-EXCHANGE_WIND_VT: Dict[str, Exchange] = {
+EXCHANGE_WIND_VT: dict[str, Exchange] = {
     "SH": Exchange.SSE,
     "SZ": Exchange.SZSE,
     "CFE": Exchange.CFFEX,
@@ -66,10 +66,10 @@ class WindMdApi:
         self.gateway_name: str = gateway.gateway_name
 
         self.connected: bool = False
-        self.ticks: Dict[str, TickData] = {}
-        self.subscribed: Dict[str, SubscribeRequest] = {}
+        self.ticks: dict[str, TickData] = {}
+        self.subscribed: dict[str, SubscribeRequest] = {}
 
-    def connect(self):
+    def connect(self) -> None:
         """"""
         data = w.start()
         if not data.ErrorCode:
@@ -81,7 +81,7 @@ class WindMdApi:
         for req in self.subscribed.values():
             self.subscribe(req)
 
-    def subscribe(self, req: SubscribeRequest):
+    def subscribe(self, req: SubscribeRequest) -> None:
         """"""
         self.subscribed[req.vt_symbol] = req
 
@@ -103,7 +103,7 @@ class WindMdApi:
             gateway_name=self.gateway_name
         )
 
-    def wsq_callback(self, data):
+    def wsq_callback(self, data: Any) -> None:
         """"""
         wind_symbol = data.Codes[0]
         tick = self.ticks[wind_symbol]
