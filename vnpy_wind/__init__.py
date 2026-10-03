@@ -20,6 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+"""万得历史数据服务与行情接口。"""
 
 from .wind_datafeed import WindDatafeed as Datafeed
 from .wind_md import WindMdApi

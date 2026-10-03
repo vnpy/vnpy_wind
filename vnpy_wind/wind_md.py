@@ -1,3 +1,5 @@
+"""万得实时行情接口。"""
+
 from copy import copy
 from datetime import datetime
 from typing import Any
@@ -61,7 +63,7 @@ class WindMdApi:
     wsq_param_map["rt_asize5"] = "ask_volume_5"
 
     def __init__(self, gateway: BaseGateway):
-        """"""
+        """保存网关引用，并初始化连接状态与行情缓存。"""
         self.gateway: BaseGateway = gateway
         self.gateway_name: str = gateway.gateway_name
 
@@ -70,7 +72,7 @@ class WindMdApi:
         self.subscribed: dict[str, SubscribeRequest] = {}
 
     def connect(self) -> None:
-        """"""
+        """启动Wind行情；连接成功后补订已记录的合约。"""
         data = w.start()
         if not data.ErrorCode:
             self.gateway.write_log("Wind行情接口连接成功")
@@ -82,7 +84,7 @@ class WindMdApi:
             self.subscribe(req)
 
     def subscribe(self, req: SubscribeRequest) -> None:
-        """"""
+        """订阅Wind实时行情并缓存Tick。"""
         self.subscribed[req.vt_symbol] = req
 
         wind_exchange = EXCHANGE_VT_WIND[req.exchange]
@@ -104,7 +106,7 @@ class WindMdApi:
         )
 
     def wsq_callback(self, data: Any) -> None:
-        """"""
+        """将Wind推送字段写入Tick并交给网关。"""
         wind_symbol = data.Codes[0]
         tick = self.ticks[wind_symbol]
 

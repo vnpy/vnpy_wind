@@ -1,3 +1,5 @@
+"""万得历史数据服务。"""
+
 from datetime import datetime
 from collections.abc import Callable
 from math import isnan
