@@ -3,6 +3,7 @@
 from datetime import datetime
 from collections.abc import Callable
 from math import isnan
+from typing import cast
 
 from WindPy import w
 
@@ -46,7 +47,7 @@ class WindDatafeed(BaseDatafeed):
 
         return True
 
-    def query_bar_history(self, req: HistoryRequest, output: Callable = print) -> list[BarData] | None:
+    def query_bar_history(self, req: HistoryRequest, output: Callable = print) -> list[BarData]:
         """查询K线数据"""
         if not w.isconnected():
             self.init(output)
@@ -56,7 +57,7 @@ class WindDatafeed(BaseDatafeed):
         else:
             return self.query_intraday_bar_history(req, output)
 
-    def query_intraday_bar_history(self, req: HistoryRequest, output: Callable = print) -> list[BarData] | None:
+    def query_intraday_bar_history(self, req: HistoryRequest, output: Callable = print) -> list[BarData]:
         """查询日内K线数据"""
         # 参数转换
         wind_exchange: str = EXCHANGE_MAP[req.exchange]
@@ -72,7 +73,7 @@ class WindDatafeed(BaseDatafeed):
             "oi"
         ]
 
-        wind_interval: str = INTERVAL_MAP[req.interval]
+        wind_interval: str = INTERVAL_MAP[cast(Interval, req.interval)]
         options: str = f"BarSize={wind_interval}"
 
         # 发起查询
@@ -122,7 +123,7 @@ class WindDatafeed(BaseDatafeed):
 
         return bars
 
-    def query_daily_bar_history(self, req: HistoryRequest, output: Callable = print) -> list[BarData] | None:
+    def query_daily_bar_history(self, req: HistoryRequest, output: Callable = print) -> list[BarData]:
         """查询日K线数据"""
         # 参数转换
         wind_exchange: str = EXCHANGE_MAP[req.exchange]

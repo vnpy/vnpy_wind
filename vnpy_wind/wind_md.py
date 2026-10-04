@@ -62,7 +62,7 @@ class WindMdApi:
     wsq_param_map["rt_asize4"] = "ask_volume_4"
     wsq_param_map["rt_asize5"] = "ask_volume_5"
 
-    def __init__(self, gateway: BaseGateway):
+    def __init__(self, gateway: BaseGateway) -> None:
         """保存网关引用，并初始化连接状态与行情缓存。"""
         self.gateway: BaseGateway = gateway
         self.gateway_name: str = gateway.gateway_name
