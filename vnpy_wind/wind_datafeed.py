@@ -3,8 +3,9 @@
 from datetime import datetime
 from collections.abc import Callable
 from math import isnan
-from typing import cast
+from typing import Any, cast
 
+from pandas import DataFrame
 from WindPy import w
 
 from vnpy.trader.constant import Exchange, Interval
@@ -13,7 +14,7 @@ from vnpy.trader.datafeed import BaseDatafeed
 from vnpy.trader.utility import ZoneInfo
 
 
-CHINA_TZ = ZoneInfo("Asia/Shanghai")
+CHINA_TZ: ZoneInfo = ZoneInfo("Asia/Shanghai")
 
 
 EXCHANGE_MAP: dict[Exchange, str] = {
@@ -77,6 +78,8 @@ class WindDatafeed(BaseDatafeed):
         options: str = f"BarSize={wind_interval}"
 
         # 发起查询
+        error: int
+        df: DataFrame
         error, df = w.wsi(
             codes=wind_symbol,
             fields=fields,
@@ -96,6 +99,8 @@ class WindDatafeed(BaseDatafeed):
 
         # 解析数据
         bars: list[BarData] = []
+        # itertuples 静态类型是 tuple，列字段无法命名
+        tp: Any
         for tp in df.itertuples():
             dt: datetime = tp.Index.to_pydatetime()
 
@@ -140,6 +145,8 @@ class WindDatafeed(BaseDatafeed):
         ]
 
         # 发起查询
+        error: int
+        df: DataFrame
         error, df = w.wsd(
             codes=wind_symbol,
             fields=fields,
@@ -159,6 +166,8 @@ class WindDatafeed(BaseDatafeed):
 
         # 解析数据
         bars: list[BarData] = []
+        # itertuples 静态类型是 tuple，列字段无法命名
+        tp: Any
         for tp in df.itertuples():
             dt: datetime = datetime.combine(tp.Index, datetime.min.time())
 

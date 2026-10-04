@@ -12,7 +12,7 @@ from vnpy.trader.utility import ZoneInfo
 from vnpy.trader.constant import Exchange
 
 
-CHINA_TZ = ZoneInfo("Asia/Shanghai")
+CHINA_TZ: ZoneInfo = ZoneInfo("Asia/Shanghai")
 
 
 EXCHANGE_WIND_VT: dict[str, Exchange] = {
@@ -25,13 +25,13 @@ EXCHANGE_WIND_VT: dict[str, Exchange] = {
     "INE": Exchange.INE,
     "GFE": Exchange.GFEX
 }
-EXCHANGE_VT_WIND = {v: k for k, v in EXCHANGE_WIND_VT.items()}
+EXCHANGE_VT_WIND: dict[Exchange, str] = {v: k for k, v in EXCHANGE_WIND_VT.items()}
 
 
 class WindMdApi:
     """Wind行情API实例"""
 
-    wsq_param_map = {}
+    wsq_param_map: dict[str, str] = {}
     wsq_param_map["rt_last"] = "last_price"
     wsq_param_map["rt_last_vol"] = "volume"
     wsq_param_map["rt_oi"] = "open_interest"
@@ -73,13 +73,14 @@ class WindMdApi:
 
     def connect(self) -> None:
         """启动Wind行情；连接成功后补订已记录的合约。"""
-        data = w.start()
+        data: w.WindData = w.start()
         if not data.ErrorCode:
             self.gateway.write_log("Wind行情接口连接成功")
         else:
             self.gateway.write_log("Wind行情接口连接失败")
             return
 
+        req: SubscribeRequest
         for req in self.subscribed.values():
             self.subscribe(req)
 
@@ -87,8 +88,8 @@ class WindMdApi:
         """订阅Wind实时行情并缓存Tick。"""
         self.subscribed[req.vt_symbol] = req
 
-        wind_exchange = EXCHANGE_VT_WIND[req.exchange]
-        wind_symbol = f"{req.symbol}.{wind_exchange}"
+        wind_exchange: str = EXCHANGE_VT_WIND[req.exchange]
+        wind_symbol: str = f"{req.symbol}.{wind_exchange}"
 
         # 这里额外做一次检查，避免w丢失初始化状态
         if not w.isconnected():
@@ -107,16 +108,18 @@ class WindMdApi:
 
     def wsq_callback(self, data: Any) -> None:
         """将Wind推送字段写入Tick并交给网关。"""
-        wind_symbol = data.Codes[0]
-        tick = self.ticks[wind_symbol]
+        wind_symbol: str = data.Codes[0]
+        tick: TickData = self.ticks[wind_symbol]
 
-        dt = data.Times[0]
+        dt: datetime = data.Times[0]
         tick.datetime = dt.replace(tzinfo=CHINA_TZ)
 
+        n: int
+        field: str
         for n, field in enumerate(data.Fields):
             field = field.lower()
-            key = self.wsq_param_map[field]
-            value = data.Data[n][0]
+            key: str = self.wsq_param_map[field]
+            value: float = data.Data[n][0]
             setattr(tick, key, value)
 
         self.gateway.on_tick(copy(tick))
