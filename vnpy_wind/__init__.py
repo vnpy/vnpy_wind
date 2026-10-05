@@ -29,5 +29,5 @@ from .wind_md import WindMdApi
 __all__ = ["Datafeed", "WindMdApi"]
 
 
-__version__ = "1.1.0"
+__version__ = "1.1.1"
 
